@@ -26,7 +26,7 @@ train_labels = np.array(train_labels)
 
 num_features = train_data.shape[-1]
 # three classes: confuse, not confuse, uncertain
-num_classes = 3;
+num_classes = 3
 
 # enable GPU for training
 physical_device = tf.config.experimental.list_physical_devices('GPU')
@@ -55,11 +55,12 @@ model.compile(optimizer=Adam(learning_rate=0.0001),
 # train the model with given data and parameters
 EPOCHS = 30
 BATCHES = 10
-validation_precent = 0.1 # split some data as validation set
+# split some data as validation set
+validation_percent = 0.1
 history = model.fit(
     x=train_data,
     y=train_labels,
-    validation_split=validation_precent,
+    validation_split=validation_percent,
     batch_size=BATCHES,
     epochs=EPOCHS,
     shuffle=True,
@@ -84,4 +85,3 @@ plt.xlabel('epoch')
 plt.legend(['train', 'val'], loc='upper left')
 plt.show()
 plt.savefig('model_loss.png')
-
