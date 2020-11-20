@@ -1,2 +1,3 @@
-# Visual Studio cache directory
+# cache directory
 .vs/
+.idea/
