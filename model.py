@@ -30,7 +30,7 @@ num_classes = 3;
 # enable GPU for training
 physical_device = tf.config.experimental.list_physical_devices('GPU')
 print("Number of GPUs Available: ", len(physical_device))
-# check whether a CUDA GPU exits
+# use a CUDA GPU it exits
 if len(physical_device):
     tf.config.experimental.set_memory_growth(physical_device[0], True)
 
@@ -54,7 +54,7 @@ model.compile(optimizer=Adam(learning_rate=0.0001),
 # train the model with given data and parameters
 EPOCHS = 30
 BATCHES = 10
-validation_precent = 0.1
+validation_precent = 0.1 # split some data as validation set
 history = model.fit(
     x=train_data,
     y=train_labels,
