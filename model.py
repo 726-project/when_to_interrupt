@@ -2,10 +2,10 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Activation, Dense
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.metrics import categorical_crossentropy
+from keras.models import Sequential
+from keras.layers import Activation, Dense
+from keras.optimizers import Adam
+from keras.metrics import categorical_crossentropy
 from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
 
