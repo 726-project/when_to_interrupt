@@ -13,6 +13,9 @@ train_data = []
 # data label
 train_labels = []
 
+# add data to corresponding array
+# ...
+
 train_data = np.array(train_data)
 train_labels = np.array(train_labels)
 
@@ -24,9 +27,10 @@ num_features = train_data.shape[-1]
 # three classes: confuse, not confuse, uncertain
 num_classes = 3;
 
+# enable GPU for training
 physical_device = tf.config.experimental.list_physical_devices('GPU')
 print("Number of GPUs Available: ", len(physical_device))
-# enable GPU for training
+# check whether a CUDA GPU exits
 if len(physical_device):
     tf.config.experimental.set_memory_growth(physical_device[0], True)
 
@@ -60,7 +64,7 @@ history = model.fit(
     shuffle=True,
     verbose=2)
 
-# plot the model accuracy and loss
+# plot amd save the model accuracy and loss
 plt.plot(history.history['acc'])
 plt.plot(history.history['val_acc'])
 plt.title('model accuracy')
@@ -68,6 +72,8 @@ plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'val'], loc='upper left')
 plt.show()
+plt.savefig('model_accuracy.png')
+
 
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
@@ -76,4 +82,5 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'val'], loc='upper left')
 plt.show()
+plt.savefig('model_loss.png')
 
