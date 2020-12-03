@@ -1,3 +1,4 @@
 # cache directory
 .vs/
 .idea/
+.DS_Store

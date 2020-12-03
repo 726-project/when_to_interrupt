@@ -5,7 +5,7 @@ import json
 import glob
 from tensorflow import keras
 from keras.models import Sequential
-from keras.layers import Activation, Dense
+from keras.layers import Activation, Dense, LSTM
 from keras.optimizers import Adam
 from keras.metrics import categorical_crossentropy
 from sklearn.utils import shuffle
@@ -31,15 +31,29 @@ for path in train_path:
 
 num_features = len(train_data[0][0])
 loaded_train_data = []
+loaded_train_label = []
+# parameter for sliding window
+window_size = 3
+window_left = 0
+window_right = window_size - 1
+slide = window_size
+
 for lst in train_data:
-    for data_point in lst:
-        loaded_train_data.append(data_point)
+    while window_right < len(lst):
+        window = []
+        for i in range(window_left, window_right + 1):
+            window.append(lst[i][1:])
+            if i == window_right:
+                loaded_train_label.append(lst[i][0])
+        loaded_train_data.append(window)
+        window_left += slide
+        window_right += slide
 
 loaded_train_data = np.array(loaded_train_data)
-# data label
-loaded_train_label = loaded_train_data[:,0]
-# feature value for every data
-loaded_train_data = np.array(loaded_train_data)[:,1:]
+loaded_train_label = np.array(loaded_train_label)
+print(loaded_train_data.shape)
+print(loaded_train_label.shape)
+print(loaded_train_data.shape[1:])
 
 # need to preprocess and shuffle the data
 # before passing into model
@@ -51,6 +65,7 @@ num_classes = 4
 
 # initialize the sequential model
 model = Sequential([
+    LSTM(64, input_shape=(loaded_train_data.shape[1:])),
     Dense(units=16, input_shape=(num_features,), activation='relu'),
     Dense(units=32, activation='relu'),
     Dense(units=64, activation='relu'),
@@ -62,8 +77,8 @@ model = Sequential([
 model.summary()
 
 # compile the model
-model.compile(optimizer=Adam(learning_rate=0.0001), 
-              loss='sparse_categorical_crossentropy', 
+model.compile(optimizer=Adam(learning_rate=0.0001),
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
 # train the model with given data and parameters
