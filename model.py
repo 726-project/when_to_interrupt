@@ -66,7 +66,7 @@ num_classes = 4
 # initialize the sequential model
 model = Sequential([
     LSTM(64, input_shape=(loaded_train_data.shape[1:])),
-    Dense(units=16, input_shape=(num_features,), activation='relu'),
+    Dense(units=16, activation='relu'),
     Dense(units=32, activation='relu'),
     Dense(units=64, activation='relu'),
     Dense(units=128, activation='relu'),
