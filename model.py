@@ -1,13 +1,17 @@
 import sys
 import numpy as np
-from tensorflow import keras
+import tensorflow as tf
+import keras
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Dropout
 from keras.optimizers import Adam
+from sklearn.utils import shuffle
+from sklearn.preprocessing import MinMaxScaler
 from keras.metrics import categorical_crossentropy
 import matplotlib.pyplot as plt
 
-ENABLE_GPU = False
+
+ENABLE_GPU = True
 
 HIDDEN_STATE_VECTOR_DIM = 256
 EPOCHS = 30
@@ -19,15 +23,22 @@ def main():
     labels = np.load('LSTM_labels.npy') #sequences labels not frame labels
 
     num_features = frame_sequences.shape[-1]
-    # num_classes = 3 #confuse, not confuse, uncertain
     num_classes = 4 #confuse, not confuse, uncertain
-
     model = Sequential()
+
+    # normalize openpose 2d position between -1,1
+    # normalize the rest feature between 0,1
+    scaler_op = MinMaxScaler(feature_range=(-1,1))
+    scaler_h = MinMaxScaler(feature_range=(0,1))
+    for i in range(len(frame_sequences)):
+        frame_sequences[i][:,0:54] = scaler_op.fit_transform(frame_sequences[i][:,0:54])
+        frame_sequences[i][:, 54:] = scaler_h.fit_transform(frame_sequences[i][:, 54:])
+
     # input_shape=(frame_sequences.shape[1:]) #(WINDOW_SIZE, num_features)
-    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='tanh', return_sequences=True))
+    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, input_shape=(frame_sequences.shape[1:]), activation='relu', return_sequences=True))
     model.add(Dropout(0.2))
 
-    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='tanh'))
+    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='relu'))
     model.add(Dropout(0.2))
 
     model.add(Dense(num_classes, activation='softmax'))
@@ -43,7 +54,7 @@ def main():
         validation_split=0.1,
         batch_size=BATCHES,
         epochs=EPOCHS,
-        shuffle=True)
+        shuffle=False)
 
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
