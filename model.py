@@ -48,7 +48,7 @@ def main():
     model.add(Dense(num_classes, activation='softmax'))
     # mean_squared_error or categorical_crossentropy
     # using mean_squared_error results in bad accuracy
-    model.compile(optimizer=Adam(learning_rate=0.0001),
+    model.compile(optimizer=Adam(lr=1e-3, decay=1e-5),
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
