@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 ENABLE_GPU = True
-
+IS_SHUFFLE = False
 HIDDEN_STATE_VECTOR_DIM = 256
 EPOCHS = 30
 BATCHES = 10
@@ -31,15 +31,19 @@ def main():
     scaler_op = MinMaxScaler(feature_range=(-1,1))
     scaler_h = MinMaxScaler(feature_range=(0,1))
     for i in range(len(frame_sequences)):
-        frame_sequences[i][:,0:54] = scaler_op.fit_transform(frame_sequences[i][:,0:54])
-        frame_sequences[i][:, 54:] = scaler_h.fit_transform(frame_sequences[i][:, 54:])
+        frame_sequences[i][:,0:54] = scaler_op.fit_transform(frame_sequences[i][:,0:54])# normalize openpose 2d position
+        frame_sequences[i][:, 54:] = scaler_h.fit_transform(frame_sequences[i][:, 54:]) # normalize the rest feature
+
+    # shuffle data if is shuffle
+    if IS_SHUFFLE:
+        frame_sequences, labels = shuffle(frame_sequences, labels)
 
     # input_shape=(frame_sequences.shape[1:]) #(WINDOW_SIZE, num_features)
     model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, input_shape=(frame_sequences.shape[1:]), activation='relu', return_sequences=True))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
 
     model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='relu'))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
 
     model.add(Dense(num_classes, activation='softmax'))
     # mean_squared_error or categorical_crossentropy
@@ -54,7 +58,7 @@ def main():
         validation_split=0.1,
         batch_size=BATCHES,
         epochs=EPOCHS,
-        shuffle=False)
+        shuffle=IS_SHUFFLE)
 
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
