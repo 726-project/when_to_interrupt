@@ -34,11 +34,11 @@ loaded_train_data = []
 loaded_train_label = []
 # parameter for sliding window
 window_size = 3
-window_left = 0
-window_right = window_size - 1
 slide = window_size
 
 for lst in train_data:
+    window_left = 0
+    window_right = window_size - 1
     while window_right < len(lst):
         window = []
         for i in range(window_left, window_right + 1):
