@@ -1,4 +1,5 @@
-# Visual Studio cache directory
 .vs/
-raw/
-new_raw/
+.idea/
+.DS_Store
+*.npy
+try.py
