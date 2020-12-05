@@ -40,7 +40,7 @@ if not os.path.exists(CSV_DATASET+SEP+'openpose'):
 def writeToJson(hat, openpose, combined, file_date, writeFlag):
     if not writeFlag: return
     else:
-        hat_list = hat.iloc[:,2:].values.tolist()
+        hat_list = hat.values.tolist()
         openpose_combined = combined.values.tolist()
         openpose_json = openpose.values.tolist()
 
@@ -63,7 +63,7 @@ def writeToCSV(hat, openpose, combined, file_date, writeFlag):
 def getHatFiles(hat_dir):
     allFiles = glob(hat_dir + '*')
     res = [i.split(SEP)[-1] for i in allFiles if i.split(SEP)[-1].startswith('vicon_hat')]
-    if len(res) == 2:
+    if len(res) >= 2:
         hat_orientation = [i for i in res if i.split('_')[-1].startswith('orientation')]
         hat_translation = [i for i in res if i.split('_')[-1].startswith('translation')]
         return hat_orientation[-1], hat_translation[-1]
@@ -96,10 +96,14 @@ def readAndProcess(file_date):
     # print(openpose)
     combined_json =pd.merge(openpose,hat_final.iloc[:,2:],left_index=True,right_index=True)
     combined_json = combined_json[combined_json[0] != -1]  #filter out objects with 0 as a label
-    print(pd.unique(combined_json[0]))
-    # print(combined_json)
-    writeToJson(hat_final, openpose[openpose[0] != 0], combined_json, file_date, JSON_FLAG)
-    writeToCSV(hat_final, openpose, combined_json, file_date, CSV_FLAG)
+    # print(combined_json[combined_json.columns[-6:combined_json.columns.size]])
+    hat_toWrite = pd.concat([combined_json.iloc[:,0], \
+        combined_json.iloc[:,-6:combined_json.columns.size]],axis = 1)
+    # print(pd.unique(combined_json.iloc[:,0:55][0]))
+    # print(combined_json.iloc[:,0:55])
+    # print(openpose[openpose[0] != -1])
+    writeToJson(hat_toWrite, combined_json.iloc[:,0:55], combined_json, file_date, JSON_FLAG)
+    writeToCSV(hat_toWrite, combined_json.iloc[:,0:55], combined_json, file_date, CSV_FLAG)
 
 orien_cols = ['id','roll','pitch','yaw']
 trans_cols = ['id','x','y','z']
