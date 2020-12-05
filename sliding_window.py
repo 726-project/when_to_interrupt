@@ -3,7 +3,7 @@ import glob
 import numpy as np
 
 WINDOW_SIZE = 10
-SLIDE = 10
+SLIDE = 1
 
 IS_ALL = True
 IS_HAT = False

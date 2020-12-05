@@ -12,7 +12,7 @@ from sklearn.utils import shuffle
 ENABLE_GPU = False
 
 HIDDEN_STATE_VECTOR_DIM = 127
-EPOCHS = 60
+EPOCHS = 40
 BATCHES = 500
 
 IS_SHUFFLE = True
@@ -31,11 +31,11 @@ def main():
     # input_shape=(frame_sequences.shape[1:]) #(WINDOW_SIZE, num_features)
     # tanh activation get better accuracy than relu
     model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='tanh', return_sequences=True))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
 
     # two layers are better than single layer of LSTM
     model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='tanh'))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
 
     model.add(Dense(num_classes, activation='softmax'))
     # mean_squared_error or categorical_crossentropy
