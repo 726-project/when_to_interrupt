@@ -15,24 +15,33 @@ ENABLE_GPU = True
 IS_SHUFFLE = False
 HIDDEN_STATE_VECTOR_DIM = 16
 EPOCHS = 80
-BATCHES = 10
-
+BATCHES = 100
+IS_ALL = True
+IS_HAT = False
+IS_OP = False
 # this implementation is for baseline LSTM model training
 def main():
     frame_sequences = np.load('LSTM_input.npy')
     labels = np.load('LSTM_labels.npy') #sequences labels not frame labels
 
     num_features = frame_sequences.shape[-1]
-    num_classes = 4 #confuse, not confuse, uncertain
+    num_classes = 3 #confuse, not confuse, uncertain
     model = Sequential()
 
     # normalize openpose 2d position between -1,1
     # normalize the rest feature between 0,1
     scaler_op = MinMaxScaler(feature_range=(-1,1))
     scaler_h = MinMaxScaler(feature_range=(0,1))
-    for i in range(len(frame_sequences)):
-        frame_sequences[i][:,0:54] = scaler_op.fit_transform(frame_sequences[i][:,0:54])# normalize openpose 2d position
-        frame_sequences[i][:, 54:] = scaler_h.fit_transform(frame_sequences[i][:, 54:]) # normalize the rest feature
+    if IS_ALL:
+        for i in range(len(frame_sequences)):
+            frame_sequences[i][:,0:54] = scaler_op.fit_transform(frame_sequences[i][:,0:54])# normalize openpose 2d position
+            frame_sequences[i][:, 54:] = scaler_h.fit_transform(frame_sequences[i][:, 54:]) # normalize the rest feature
+    elif IS_HAT:
+        for i in range(len(frame_sequences)):
+            frame_sequences[i][:, 0:] = scaler_h.fit_transform(frame_sequences[i][:, 0:])  # normalize the rest feature
+    elif IS_OP:
+        for i in range(len(frame_sequences)):
+            frame_sequences[i][:, 0:] = scaler_op.fit_transform(frame_sequences[i][:, 0:])  # normalize openpose 2d position
 
     # shuffle data if is shuffle
     if IS_SHUFFLE:
