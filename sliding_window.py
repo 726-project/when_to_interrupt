@@ -2,14 +2,22 @@ import json
 import glob
 import numpy as np
 
-WINDOW_SIZE = 5
-SLIDE = 1
+WINDOW_SIZE = 10
+SLIDE = 10
 
+IS_ALL = True
+IS_HAT = False
+IS_OP = False
 # this implementation is for baseline LSTM model training
 def main():
     data = []
     # obtain path for training data
-    train_path = glob.glob("processed_data/*.json")
+    if IS_ALL:
+        train_path = glob.glob("processed_data/all/*.json")
+    elif IS_HAT:
+        train_path = glob.glob("processed_data/hat/*.json")
+    elif IS_OP:
+        train_path = glob.glob("processed_data/openpose/*.json")
 
     # concatenating all video frames to one giant dataset 
     for path in train_path:
