@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 
 ENABLE_GPU = True
 IS_SHUFFLE = False
-HIDDEN_STATE_VECTOR_DIM = 256
-EPOCHS = 30
+HIDDEN_STATE_VECTOR_DIM = 16
+EPOCHS = 80
 BATCHES = 10
 
 # this implementation is for baseline LSTM model training
@@ -48,14 +48,14 @@ def main():
     model.add(Dense(num_classes, activation='softmax'))
     # mean_squared_error or categorical_crossentropy
     # using mean_squared_error results in bad accuracy
-    model.compile(optimizer=Adam(lr=1e-3, decay=1e-5),
+    model.compile(optimizer=Adam(lr=1e-4, decay=1e-5),
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
     history = model.fit(
         x=frame_sequences,
         y=labels,
-        validation_split=0.1,
+        validation_split=0.3,
         batch_size=BATCHES,
         epochs=EPOCHS,
         shuffle=IS_SHUFFLE)
