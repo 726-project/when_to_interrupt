@@ -2,8 +2,8 @@ import sys
 import numpy as np
 import tensorflow as tf
 import keras
-from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout
+from keras.models import Sequential, Model
+from keras.layers import Dense, LSTM, Dropout, Input, concatenate
 from keras.optimizers import Adam
 from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
@@ -12,11 +12,12 @@ import matplotlib.pyplot as plt
 
 IS_SHUFFLE = False
 HIDDEN_STATE_VECTOR_DIM = 16
-EPOCHS = 100
-BATCHES = 50
+EPOCHS = 40
+BATCHES = 100
 IS_ALL = True
 IS_HAT = False
 IS_OP = False
+IS_MULTIPLE_INPUT = True
 # this implementation is for baseline LSTM model training
 def main():
     frame_sequences = np.load('LSTM_input.npy')
@@ -24,7 +25,6 @@ def main():
 
     num_features = frame_sequences.shape[-1]
     num_classes = 3 #confuse, not confuse, uncertain
-    model = Sequential()
 
     # normalize openpose 2d position between -1,1
     # normalize the rest feature between 0,1
@@ -45,27 +45,70 @@ def main():
     if IS_SHUFFLE:
         frame_sequences, labels = shuffle(frame_sequences, labels)
 
-    # input_shape=(frame_sequences.shape[1:]) #(WINDOW_SIZE, num_features)
-    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, input_shape=(frame_sequences.shape[1:]), activation='relu', return_sequences=True))
-    model.add(Dropout(0.5))
+    if IS_ALL:
+        openpose_input = []
+        head_ori_input = []
+        for i in range(len(frame_sequences)):
+            openpose_input.append(frame_sequences[i][:,0:54])
+        openpose_input = np.array(openpose_input)
+        for i in range(len(frame_sequences)):
+            head_ori_input.append(frame_sequences[i][:,54:])
+        head_ori_input = np.array(head_ori_input)
 
-    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='relu'))
-    model.add(Dropout(0.5))
+    if not IS_MULTIPLE_INPUT:
+        model = Sequential()
+        # input_shape=(frame_sequences.shape[1:]) #(WINDOW_SIZE, num_features)
+        model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, input_shape=(frame_sequences.shape[1:]), activation='relu', return_sequences=True))
+        model.add(Dropout(0.5))
 
-    model.add(Dense(num_classes, activation='softmax'))
-    # mean_squared_error or categorical_crossentropy
-    # using mean_squared_error results in bad accuracy
-    model.compile(optimizer=Adam(lr=1e-4, decay=1e-5),
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
+        model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='relu'))
+        model.add(Dropout(0.5))
 
-    history = model.fit(
-        x=frame_sequences,
-        y=labels,
-        validation_split=0.1,
-        batch_size=BATCHES,
-        epochs=EPOCHS,
-        shuffle=IS_SHUFFLE)
+        model.add(Dense(num_classes, activation='softmax'))
+
+        model.compile(optimizer=Adam(lr=1e-4, decay=1e-5),
+                      loss='sparse_categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        history = model.fit(
+            x=frame_sequences,
+            y=labels,
+            validation_split=0.1,
+            batch_size=BATCHES,
+            epochs=EPOCHS,
+            shuffle=IS_SHUFFLE)
+    else:
+        inputA = Input(shape=(openpose_input.shape[1:]))
+        inputB = Input(shape=(head_ori_input.shape[1:]))
+
+        x = LSTM(HIDDEN_STATE_VECTOR_DIM, activation='relu')(inputA)
+        x = Dropout(0.5)(x)
+        x = Dense(8, activation="relu")(x)
+        x = Model(inputs=inputA, outputs=x)
+
+        y = LSTM(HIDDEN_STATE_VECTOR_DIM, activation='relu')(inputB)
+        y = Dropout(0.5)(y)
+        y = Dense(8, activation="relu")(y)
+        y = Model(inputs=inputB, outputs=y)
+
+        combined = concatenate([x.output, y.output])
+
+        z = Dense(16, activation="relu")(combined)
+        z = Dense(num_classes, activation="softmax")(z)
+        model = Model(inputs=[x.input, y.input], outputs=z)
+
+        model.compile(optimizer=Adam(lr=1e-3, decay=1e-5),
+                      loss='sparse_categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        history = model.fit(
+            x=[openpose_input,head_ori_input],
+            y=labels,
+            validation_split=0.1,
+            batch_size=BATCHES,
+            epochs=EPOCHS,
+            shuffle=IS_SHUFFLE)
+
 
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
