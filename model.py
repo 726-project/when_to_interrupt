@@ -70,4 +70,3 @@ if __name__ == '__main__':
         if len(physical_device):
             tf.config.experimental.set_memory_growth(physical_device[0], True)
     main()
-
