@@ -2,7 +2,7 @@ import json
 import glob
 import numpy as np
 
-WINDOW_SIZE = 5
+WINDOW_SIZE = 10
 SLIDE = 1
 
 IS_ALL = True

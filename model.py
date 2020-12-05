@@ -10,12 +10,10 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.metrics import categorical_crossentropy
 import matplotlib.pyplot as plt
 
-
-ENABLE_GPU = True
 IS_SHUFFLE = False
 HIDDEN_STATE_VECTOR_DIM = 16
-EPOCHS = 80
-BATCHES = 100
+EPOCHS = 100
+BATCHES = 50
 IS_ALL = True
 IS_HAT = False
 IS_OP = False
@@ -42,7 +40,7 @@ def main():
     elif IS_OP:
         for i in range(len(frame_sequences)):
             frame_sequences[i][:, 0:] = scaler_op.fit_transform(frame_sequences[i][:, 0:])  # normalize openpose 2d position
-
+    print(frame_sequences.shape)
     # shuffle data if is shuffle
     if IS_SHUFFLE:
         frame_sequences, labels = shuffle(frame_sequences, labels)
@@ -64,7 +62,7 @@ def main():
     history = model.fit(
         x=frame_sequences,
         y=labels,
-        validation_split=0.3,
+        validation_split=0.1,
         batch_size=BATCHES,
         epochs=EPOCHS,
         shuffle=IS_SHUFFLE)
@@ -87,11 +85,15 @@ def main():
 
 
 if __name__ == '__main__':
-    if ENABLE_GPU:
-        physical_device = tf.config.experimental.list_physical_devices('GPU')
-        print("Number of GPUs Available: ", len(physical_device))
-        # use a CUDA GPU it exits
-        if len(physical_device):
-            tf.config.experimental.set_memory_growth(physical_device[0], True)
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    # use a CUDA GPU it exits
+    if gpus:
+        try:
+            tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+            logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
+        except RuntimeError as e:
+            # Visible devices must be set before GPUs have been initialized
+            print(e)
     main()
 
