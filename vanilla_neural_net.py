@@ -1,8 +1,10 @@
 import sys
 import numpy as np
+import glob
+import json
 from tensorflow import keras
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout
+from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
 from keras.metrics import categorical_crossentropy
 import matplotlib.pyplot as plt
@@ -13,60 +15,60 @@ ENABLE_GPU = False
 
 HIDDEN_STATE_VECTOR_DIM = 127
 EPOCHS = 40
-BATCHES = 500
+BATCHES = 50
 
 IS_SHUFFLE = True
 
-IS_ALL = True
-IS_HAT = False
-IS_OP = False
 
 # this implementation is for baseline LSTM model training
 def main():
-    frame_sequences = np.load('LSTM_input.npy')
-    labels = np.load('LSTM_labels.npy') #sequences labels not frame labels
+    data = []
+    labels = []
+    train_path = glob.glob("processed_data/all/*.json")
+    for path in train_path:
+        with open(path) as f:
+            raw_data = json.loads(f.read())
+        for frame in raw_data:
+            data.append(frame[1:])
+            labels.append(frame[0])
 
-    num_features = frame_sequences.shape[-1]
+
+    num_features = len(data[0])
     num_classes = 3 #confuse, not confuse, uncertain
+
+    data_np = np.array(data)
+    labels_np = np.array(labels)
+
 
     model = Sequential()
 
-    # input_shape=(frame_sequences.shape[1:]) #(WINDOW_SIZE, num_features)
-    # tanh activation get better accuracy than relu
-    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='tanh', return_sequences=True))
-    model.add(Dropout(0.5))
+    model.add(Dense(HIDDEN_STATE_VECTOR_DIM, activation='relu'))
+    model.add(Dropout(0.2))
 
-    # two layers are better than single layer of LSTM
-    model.add(LSTM(HIDDEN_STATE_VECTOR_DIM, activation='tanh'))
-    model.add(Dropout(0.5))
+    model.add(Dense(HIDDEN_STATE_VECTOR_DIM, activation='relu'))
+    model.add(Dropout(0.2))
 
     model.add(Dense(num_classes, activation='softmax'))
-    # mean_squared_error or categorical_crossentropy
-    # using mean_squared_error results in bad accuracy
-    model.compile(optimizer=Adam(learning_rate=0.0001),
+
+
+
+    model.compile(optimizer=Adam(learning_rate=0.00001),
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
     scaler_op = MinMaxScaler(feature_range=(-2,2))
     scaler_h = MinMaxScaler(feature_range=(-2,2))
-    if IS_ALL:
-        for i in range(len(frame_sequences)):
-            frame_sequences[i][:,0:54] = scaler_op.fit_transform(frame_sequences[i][:,0:54])# normalize openpose 2d position
-            frame_sequences[i][:, 54:] = scaler_h.fit_transform(frame_sequences[i][:, 54:]) # normalize the rest feature
-    elif IS_HAT:
-        for i in range(len(frame_sequences)):
-            frame_sequences[i][:, 0:] = scaler_h.fit_transform(frame_sequences[i][:, 0:])  # normalize the rest feature
-    elif IS_OP:
-        for i in range(len(frame_sequences)):
-            frame_sequences[i][:, 0:] = scaler_op.fit_transform(frame_sequences[i][:, 0:])  # normalize openpose 2d position
+
+    data_np[:,0:54] = scaler_op.fit_transform(data_np[:,0:54])
+    data_np[:,54:] = scaler_h.fit_transform(data_np[:,54:])
 
     if IS_SHUFFLE:
-        frame_sequences, labels = shuffle(frame_sequences, labels)
+        data_np, labels_np = shuffle(data_np, labels_np)
 
     history = model.fit(
-        x=frame_sequences,
-        y=labels,
-        validation_split=0.1,
+        x=data_np,
+        y=labels_np,
+        validation_split=0.2,
         batch_size=BATCHES,
         epochs=EPOCHS)
 
