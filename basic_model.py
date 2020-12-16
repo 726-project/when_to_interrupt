@@ -106,7 +106,7 @@ def main():
 
    
 
-    # plotValueDist(df)
+    plotValueDist(df)
     
 
 if __name__ == '__main__':
