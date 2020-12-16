@@ -17,6 +17,7 @@ import codecs, json
 def readData(path):
     json_path = path
     df = pd.concat(map(pd.read_json, glob.glob(os.path.join('',json_path))))
+    df = df.dropna()
     X, y = df.iloc[:,1:], df.iloc[:,0]
     return X,y
 
@@ -66,19 +67,22 @@ def plotFeaturesRanking(rfecv,X):
     plt.show()
 
 def main():
-    json_path = './processed_data/all/*'
+    json_path = './processed_data/json/all/*'
     X,y = readData(json_path)
     newX = corr_features(X)
+    print(newX.shape)
 
     # plotting
-    rfecv = optimal_num_features(newX,y)
-    plotFeaturesRanking(rfecv,newX)
-    # Saving
-    newX = newX.drop(columns=[14,23])
+    # rfecv = optimal_num_features(newX,y)
+    # plotFeaturesRanking(rfecv,newX)
+
+    # Saving -> Please see the plotting before saving
+    newX = newX.drop(columns=[14,6,36])
     results = pd.concat([y, newX], axis=1)
     results = results.values.tolist()
-    json.dump(results, codecs.open('all.json', 'w', encoding='utf-8'), \
+    json.dump(results, codecs.open('./processed_data/feature_selected.json', 'w', encoding='utf-8'), \
         separators=(',', ':'), sort_keys=True, indent=2)
+    print("Result saved...")
     
 
 if __name__ == '__main__':
