@@ -8,6 +8,7 @@ SLIDE = 1
 IS_ALL = True
 IS_HAT = False
 IS_OP = False
+IS_SELECTED = False
 # this implementation is for baseline LSTM model training
 def main():
     data = []
@@ -18,6 +19,8 @@ def main():
         train_path = glob.glob("processed_data/hat/*.json")
     elif IS_OP:
         train_path = glob.glob("processed_data/openpose/*.json")
+    elif IS_SELECTED:
+        train_path = glob.glob("processed_data/feature_selected.json")
 
     # concatenating all video frames to one giant dataset 
     for path in train_path:

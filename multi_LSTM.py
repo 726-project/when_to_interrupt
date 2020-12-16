@@ -18,7 +18,6 @@ DROP_OUT = 0.5
 
 IS_SHUFFLE = True
 
-
 # this implementation is for baseline LSTM model training
 def main():
     frame_sequences = np.load('LSTM_input.npy')
@@ -28,12 +27,10 @@ def main():
     num_classes = 3 #confuse, not confuse, uncertain
 
 
-    scaler_op = MinMaxScaler(feature_range=(-2,2))
     scaler_h = MinMaxScaler(feature_range=(-2,2))
-    for i in range(len(frame_sequences)):
-        frame_sequences[i][:,0:54] = scaler_op.fit_transform(frame_sequences[i][:,0:54])# normalize openpose 2d position
-        frame_sequences[i][:, 54:] = scaler_h.fit_transform(frame_sequences[i][:, 54:]) # normalize the rest feature
 
+    for i in range(len(frame_sequences)):
+        frame_sequences[i][:,:] = scaler_h.fit_transform(frame_sequences[i][:,:])
     if IS_SHUFFLE:
         frame_sequences, labels = shuffle(frame_sequences, labels)
 
@@ -86,7 +83,7 @@ def main():
     history = model.fit(
         {"op": openpose_input, "head": head_ori_input},
         {"confusion_pred": labels},
-        validation_split=0.1,
+        validation_split=0.3,
         epochs=EPOCHS,
         batch_size=BATCHES,
     )
