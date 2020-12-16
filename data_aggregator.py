@@ -102,6 +102,8 @@ def readAndProcess(file_date):
     # print(pd.unique(combined_json.iloc[:,0:55][0]))
     # print(combined_json.iloc[:,0:55])
     # print(openpose[openpose[0] != -1])
+    hat_toWrite.dropna()
+    combined_json.dropna()
     writeToJson(hat_toWrite, combined_json.iloc[:,0:55], combined_json, file_date, JSON_FLAG)
     writeToCSV(hat_toWrite, combined_json.iloc[:,0:55], combined_json, file_date, CSV_FLAG)
 
