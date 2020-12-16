@@ -21,7 +21,7 @@
 
 ## Workflow of the Project
 1. Data Proprocessing
-    * We are using Annotation tools that was developed by previous people. [GitHub Resposity](https://github.com/leomorpho/confusion_detection)
+    * We are using Annotation tools that was developed by previous people. [GitHub](https://github.com/leomorpho/confusion_detection)
     * data_aggregator.py will create the dataset in floder "./processed_data"
         * All the 60 features stored in "./processed_data/all/*json"
         * Hat orientation features stored in "./processed_data/hat/*json"
