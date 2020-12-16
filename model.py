@@ -20,6 +20,7 @@ IS_SHUFFLE = True
 IS_ALL = True
 IS_HAT = False
 IS_OP = False
+IS_SELECTED = False
 
 # this implementation is for baseline LSTM model training
 def main():
@@ -59,6 +60,10 @@ def main():
     elif IS_OP:
         for i in range(len(frame_sequences)):
             frame_sequences[i][:, 0:] = scaler_op.fit_transform(frame_sequences[i][:, 0:])  # normalize openpose 2d position
+    elif IS_SELECTED:
+        for i in range(len(frame_sequences)):
+            frame_sequences[i][:,:] = scaler_h.fit_transform(frame_sequences[i][:,:])
+
 
     if IS_SHUFFLE:
         frame_sequences, labels = shuffle(frame_sequences, labels)
@@ -66,7 +71,7 @@ def main():
     history = model.fit(
         x=frame_sequences,
         y=labels,
-        validation_split=0.1,
+        validation_split=0.3,
         batch_size=BATCHES,
         epochs=EPOCHS)
 
