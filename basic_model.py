@@ -61,6 +61,7 @@ def five_cv(model,X,y,name):
 def main():
     csv_path = './processed_data/csv/all/*'
     df = pd.concat(map(pd.read_csv, glob.glob(os.path.join('',csv_path))))
+    df = df.dropna()
     X, y = df.iloc[:,2:], df.iloc[:,1]
 
     X_train, X_valid, y_train, y_valid = train_test_split(X, y)
