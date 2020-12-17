@@ -44,22 +44,34 @@
 ![Data distribution](/img/data_dist.png "The distribution of dataset")
 
 ### Vanilla neural network
-* `python vanilla_neural_net.py`
-* It will initialize a basic deeply connected neural network
+* `python3 vanilla_neural_net.py`
+* It will initialize a basic fully connected neural network
 * It will train and validate the model 
 * It will plot the accuracy/loss of training and validation dataset at the end
+* Please refer to section 3.2 anilla neural network for more information
 
 ### LSTM
-* `python model.py`
-* It will initialize a model with two layer of LSTM and a output layer
-* It will train and validate the model 
-* It will plot the accuracy/loss of training and validation dataset at the end
+* `python3 sliding_window.py`
+* `python3 model.py`
+* Please refer to section 3.3 LSTM for more information
+
+###### Notes on Parameters for model.py & sliding_window.py
+* `IS_ALL`: Boolean --> True if train on all 60 features(Openpose + hat_ori)
+* `IS_HAT`: Boolean --> True if train on 6 hat_ori features only
+* `IS_OP`: Boolean --> True if train on 54 OpenPose features only
+* `IS_SELECTED`: Boolean --> True if train on feature selected features (default for this model) 
+
+Note: </br>1. Only one of these 4 parameters can set to True. </br>2. These 4 parameters in `model.py` & `sliding_window.py` should be consistent </br>3. Set `IS_SELECTED` parameter to true for best result.
+
 
 ### Multi-input LSTM
-* `python multi_LSTM.py`
+* `python3 sliding_window.py`
+* `python3 multi_LSTM.py`
 * It will initialize a combined LSTM model that takes hat orientation and OpenPose coordinates as separate input
-* It will train and validate the model 
-* It will plot the accuracy/loss of training and validation dataset at the end
+* Please refer to section 3.4 Multi-input LSTM for more information
+
+Note: </br>1. Prior to running sliding window, set its `IS_ALL` parameter to True, as it only make sense to run this model on all</br>featrues withour feature selection.</br>
+
 
 ### Bidirectional LSTM
 * `python bidirectional.py` will show the result plot
