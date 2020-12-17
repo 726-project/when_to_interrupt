@@ -30,6 +30,8 @@
         * ` python3 feature_selection.py `
     * Lastly, create the video sequences and sotre them as npy file
         * `python3 sliding_windows.py`
+![Data distribution](/img/slidingwindow.jpg "The distribution of dataset")
+
 2. Models 
     * We have implemented more than 5 different models for comparsion. 
 
@@ -42,8 +44,23 @@
 ![Data distribution](/img/data_dist.png "The distribution of dataset")
 
 ### Vanilla neural network
+* `python vanilla_neural_net.py`
+* It will initialize a basic deeply connected neural network
+* It will train and validate the model 
+* It will plot the accuracy/loss of training and validation dataset at the end
+
 ### LSTM
+* `python model.py`
+* It will initialize a model with two layer of LSTM and a output layer
+* It will train and validate the model 
+* It will plot the accuracy/loss of training and validation dataset at the end
+
 ### Multi-input LSTM
+* `python multi_LSTM.py`
+* It will initialize a combined LSTM model that takes hat orientation and OpenPose coordinates as separate input
+* It will train and validate the model 
+* It will plot the accuracy/loss of training and validation dataset at the end
+
 ### Bidirectional LSTM
 * `python bidirectional.py` will show the result plot
 * which_lstms(frame_sequences,labels) will show you which lstm is better
